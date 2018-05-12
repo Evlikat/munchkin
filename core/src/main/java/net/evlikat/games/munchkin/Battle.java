@@ -1,10 +1,14 @@
 package net.evlikat.games.munchkin;
 
-import net.evlikat.games.munchkin.cards.CardSet;
 import net.evlikat.games.munchkin.player.Player;
+import net.evlikat.games.munchkin.utils.GameCycle;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Battle
@@ -16,9 +20,9 @@ public class Battle {
 
     private final Game game;
 
-    private Slot<Monster> monsterSlot = Slot.empty(Monster.class);
+    private ModifiableMonsterSlot<Monster, BattleMonsterModifierCard> monsterInBattle = new ModifiableMonsterSlot<>(BattleMonsterModifierCard.class, Slot.empty(Monster.class));
     // todo:
-    private CardSet<Monster> additionalMonsters = new CardSet<>(Monster.class);
+    private List<ModifiableMonsterSlot<Monster, BattleMonsterModifierCard>> additionalMonsters = new ArrayList<>();
 
     private Player player;
     // todo:
@@ -30,30 +34,56 @@ public class Battle {
         this.player = player;
         this.otherPlayers = otherPlayers;
 
-        monster.moveTo(this.monsterSlot);
+        monster.moveTo(this.monsterInBattle.slot());
+    }
+
+    public void playOnTargetMonster(Monster monster, BattleMonsterModifierCard modifier) {
+        if (monsterInBattle.slot().contains(monster)) {
+            modifier.moveTo(monsterInBattle);
+        }
+        additionalMonsters.stream()
+            .filter(s -> s.slot().contains(monster))
+            .findFirst()
+            .ifPresent(modifier::moveTo);
     }
 
     public void addMonster(Monster newMonster) {
-        newMonster.moveTo(additionalMonsters);
+        Slot<Monster> slot = Slot.empty(Monster.class);
+        additionalMonsters.add(new ModifiableMonsterSlot<>(BattleMonsterModifierCard.class, slot));
+        newMonster.moveTo(slot);
+    }
+
+    public void removeMonster(Monster monster, CardZone outside) {
+        if (monsterInBattle.slot().contains(monster)
+            || additionalMonsters.stream().anyMatch(s -> s.slot().contains(monster))) {
+            monster.moveTo(outside);
+        }
     }
 
     public Stream<Monster> allMonsters() {
-        return Stream.concat(monsterSlot.stream(), additionalMonsters.stream());
+        return Stream.concat(
+            monsterInBattle.slot().stream(),
+            additionalMonsters.stream().map(ModifiableMonsterSlot::slot).flatMap(Slot::stream));
+    }
+
+    private Stream<ModifiableMonsterSlot<Monster, BattleMonsterModifierCard>> allMonstersInBattle() {
+        return Stream.concat(Stream.of(monsterInBattle), additionalMonsters.stream());
     }
 
     public boolean play() {
-        // todo: update after plays
-        player.battlePlay(this);
-        for (Player otherPlayer : otherPlayers) {
-            otherPlayer.otherBattlePlay(this);
-        }
-        int sumEffectiveLevel = allMonsters().mapToInt(m -> m.effectiveLevelAgainst(player)).sum();
+        GameCycle cycle = new GameCycle(
+            Stream.<BooleanSupplier>concat(
+                Stream.of(() -> player.battlePlay(this)),
+                otherPlayers.stream().map(p -> () -> p.otherBattlePlay(this))
+            ).collect(toList()));
+        cycle.run();
+        int sumEffectiveLevel = allMonstersInBattle().mapToInt(m -> m.effectiveLevelAgainst(player)).sum();
         if (player.wins(sumEffectiveLevel, helper)) {
             // levels
-            int levelsForFight = allMonsters().mapToInt(m -> m.levels(player)).sum();
+            int levelsForFight = allMonstersInBattle().mapToInt(m -> m.levels(player)).sum();
             player.gainLevelsEvenLast(levelsForFight);
             // treasures
-            int treasuresForFight = allMonsters().mapToInt(m -> m.treasures(player)).sum();
+            int treasuresForFight = allMonstersInBattle().mapToInt(m -> m.treasures(player)).sum();
             for (int i = 0; i < treasuresForFight; i++) {
                 game.getTreasures().top().moveTo(player.hand());
             }

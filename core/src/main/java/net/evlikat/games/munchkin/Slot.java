@@ -14,11 +14,11 @@ public class Slot<C extends Card> extends CardZone {
 
     private final Class<C> acceptable;
 
-    private C item;
+    private C card;
 
-    private Slot(Class<C> acceptable, C item) {
+    protected Slot(Class<C> acceptable, C card) {
         this.acceptable = acceptable;
-        this.item = item;
+        this.card = card;
     }
 
     public static <C extends Card> Slot<C> of(Class<C> acceptable, C item) {
@@ -34,44 +34,48 @@ public class Slot<C extends Card> extends CardZone {
         return acceptable.isAssignableFrom(cardClass);
     }
 
+    public boolean contains(C card) {
+        return this.card.equals(card);
+    }
+
     public C get() {
-        return item;
+        return card;
     }
 
     public Optional<C> opt() {
-        return Optional.ofNullable(item);
+        return Optional.ofNullable(card);
     }
 
     @Override
     public void enter(Card card) {
-        item = (C) card;
+        this.card = (C) card;
     }
 
     @Override
     public void leave(Card card) {
-        if (item == card) {
-            item = null;
+        if (this.card == card) {
+            this.card = null;
         }
     }
 
     public void ifPresent(Consumer<C> consumer) {
-        if (item != null) {
-            consumer.accept(item);
+        if (card != null) {
+            consumer.accept(card);
         }
     }
 
     public void ifPresentOrElse(Consumer<C> consumer, Runnable runnable) {
-        if (item != null) {
-            consumer.accept(item);
+        if (card != null) {
+            consumer.accept(card);
         } else {
             runnable.run();
         }
     }
 
     public Stream<C> stream() {
-        if (item == null) {
+        if (card == null) {
             return Stream.empty();
         }
-        return Stream.of(item);
+        return Stream.of(card);
     }
 }

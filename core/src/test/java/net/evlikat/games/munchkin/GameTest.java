@@ -207,9 +207,7 @@ public class GameTest {
             .withDoor(new Intelligent());
 
         doAnswer(c -> {
-            mikePl.getCard(MithrilArmor.class).ifPresent(armor -> {
-                mikePl.equip(armor);
-            });
+            mikePl.getCard(MithrilArmor.class).ifPresent(armor -> mikePl.equip(armor));
             return false;
         }).when(mike).freePlay();
         doReturn(true).when(mike).ask(any());

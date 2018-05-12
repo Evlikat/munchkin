@@ -1,7 +1,8 @@
 package net.evlikat.games.munchkin.cards.abilities;
 
-import net.evlikat.games.munchkin.Ability;
-import net.evlikat.games.munchkin.Game;
+import net.evlikat.games.munchkin.Battle;
+import net.evlikat.games.munchkin.BattleAbility;
+import net.evlikat.games.munchkin.player.Player;
 
 /**
  * Intelligent
@@ -9,10 +10,10 @@ import net.evlikat.games.munchkin.Game;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class Intelligent extends Ability {
+public class Intelligent extends BattleAbility {
 
     @Override
-    public void play(Game game) {
+    public void play(Player player, Battle battle) {
         // todo:
     }
 }

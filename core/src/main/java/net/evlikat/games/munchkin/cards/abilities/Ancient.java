@@ -1,7 +1,6 @@
 package net.evlikat.games.munchkin.cards.abilities;
 
-import net.evlikat.games.munchkin.Ability;
-import net.evlikat.games.munchkin.Game;
+import net.evlikat.games.munchkin.BattleMonsterModifierCard;
 
 /**
  * Ancient
@@ -9,10 +8,15 @@ import net.evlikat.games.munchkin.Game;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class Ancient extends Ability {
+public class Ancient extends BattleMonsterModifierCard {
 
     @Override
-    public void play(Game game) {
-        // todo:
+    public int value() {
+        return 10;
+    }
+
+    @Override
+    public int treasures() {
+        return 2;
     }
 }
