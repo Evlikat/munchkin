@@ -1,8 +1,8 @@
 package net.evlikat.games.munchkin.cards;
 
-import net.evlikat.games.munchkin.Card;
 import net.evlikat.games.munchkin.CardZone;
 import net.evlikat.games.munchkin.Door;
+import net.evlikat.games.munchkin.ICard;
 import net.evlikat.games.munchkin.Treasure;
 
 /**
@@ -30,12 +30,12 @@ public class RoutingDeck<T extends Deck<? extends Treasure>, D extends Deck<? ex
     }
 
     @Override
-    public boolean canEnter(Class<? extends Card> cardClass) {
+    public boolean canEnter(Class<? extends ICard> cardClass) {
         return true;
     }
 
     @Override
-    public void enter(Card card) {
+    public void enter(ICard card) {
         if (card instanceof Treasure) {
             treasures.enter(card);
         } else if (card instanceof Door) {
@@ -44,7 +44,7 @@ public class RoutingDeck<T extends Deck<? extends Treasure>, D extends Deck<? ex
     }
 
     @Override
-    public void leave(Card card) {
+    public void leave(ICard card) {
         if (card instanceof Treasure) {
             treasures.leave(card);
         } else if (card instanceof Door) {

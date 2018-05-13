@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public abstract class Card {
+public abstract class Card implements ICard {
 
     private static final AtomicInteger SEQ = new AtomicInteger(1);
 

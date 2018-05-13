@@ -2,7 +2,6 @@ package net.evlikat.games.munchkin.player;
 
 import net.evlikat.games.munchkin.Battle;
 import net.evlikat.games.munchkin.Card;
-import net.evlikat.games.munchkin.cards.Item;
 import net.evlikat.games.munchkin.utils.Dice;
 import net.evlikat.games.munchkin.utils.DiceFactory;
 
@@ -35,11 +34,6 @@ public class PlayerControl {
         if (cards.size() == 1) {
             return cards.get(0);
         }
-        return null;
-    }
-
-    public Item askChooseAmong(List<? extends Item> items) {
-        // todo:
         return null;
     }
 

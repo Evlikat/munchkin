@@ -1,8 +1,6 @@
 package net.evlikat.games.munchkin.cards.abilities;
 
-import net.evlikat.games.munchkin.Battle;
-import net.evlikat.games.munchkin.BattleAbility;
-import net.evlikat.games.munchkin.player.Player;
+import net.evlikat.games.munchkin.BattleMonsterModifierCard;
 
 /**
  * Enraged
@@ -10,10 +8,15 @@ import net.evlikat.games.munchkin.player.Player;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class Enraged extends BattleAbility {
+public class Enraged extends BattleMonsterModifierCard {
 
     @Override
-    public void play(Player player, Battle battle) {
-        // todo:
+    public int value() {
+        return 5;
+    }
+
+    @Override
+    public int treasures() {
+        return 1;
     }
 }

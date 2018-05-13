@@ -1,7 +1,6 @@
 package net.evlikat.games.munchkin.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
@@ -15,7 +14,6 @@ import java.util.function.BooleanSupplier;
 public class GameCycle {
 
     private final List<BooleanSupplier> actors;
-    private int startIndex = 0;
 
     public GameCycle(List<BooleanSupplier> actors) {
         this.actors = new ArrayList<>(actors);
@@ -23,11 +21,14 @@ public class GameCycle {
 
     public void run() {
         Iterator<BooleanSupplier> it = actors.iterator();
-        while (it.hasNext()) {
-            startIndex++;
+        int falseInRow = 0;
+        while (it.hasNext() || (it = actors.iterator()).hasNext()) {
             if (it.next().getAsBoolean()) {
-                Collections.rotate(actors, -startIndex);
-                it = actors.iterator();
+                falseInRow = 0;
+                continue;
+            }
+            if (++falseInRow >= actors.size()) {
+                return;
             }
         }
     }

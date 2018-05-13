@@ -9,7 +9,7 @@ import net.evlikat.games.munchkin.player.Player;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class ModifiableMonsterSlot<C extends Monster, M extends BattleMonsterModifierCard> extends CardSet<M> {
+public class ModifiableMonsterSlot<C extends Monster, M extends MonsterModifier> extends CardSet<M> {
 
     private final Slot<C> slot;
 

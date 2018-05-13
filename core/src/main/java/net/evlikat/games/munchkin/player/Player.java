@@ -121,7 +121,7 @@ public class Player {
     }
 
     public Item askChooseItem() {
-        return control.askChooseAmong(inventory.allItems().collect(Collectors.toList()));
+        return control.askChooseCard(inventory.allItems().collect(Collectors.toList()));
     }
 
     public Player askChoosePlayer(List<? extends Player> players) {
@@ -130,10 +130,6 @@ public class Player {
 
     public <C extends Card> C askChooseCard(List<C> cards) {
         return control.askChooseCard(cards);
-    }
-
-    public Item askChooseAmong(List<? extends Item> items) {
-        return control.askChooseAmong(items);
     }
 
     public boolean ask(String message) {
@@ -147,19 +143,10 @@ public class Player {
         inventory.equip(equipment);
     }
 
-    public void obtain(Item item) {
-        // todo:
-    }
-
-    public void lose(Item item) {
-        // todo:
-    }
-
     public boolean wantToFight() {
         // todo:
         return false;
     }
-
 
     public void loseHead() {
         // todo:

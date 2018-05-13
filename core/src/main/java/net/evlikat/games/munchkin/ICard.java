@@ -1,12 +1,12 @@
 package net.evlikat.games.munchkin;
 
 /**
- * Modifier
+ * ICard
  *
  * @author Roman Prokhorov
  * @version 1.0
  */
-public interface Modifier extends ICard {
+public interface ICard {
 
-    int value();
+    void moveTo(CardZone newZone);
 }

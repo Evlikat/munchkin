@@ -1,7 +1,7 @@
 package net.evlikat.games.munchkin.cards;
 
-import net.evlikat.games.munchkin.Card;
 import net.evlikat.games.munchkin.CardZone;
+import net.evlikat.games.munchkin.ICard;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.joining;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class CardSet<C extends Card> extends CardZone implements Iterable<C> {
+public class CardSet<C extends ICard> extends CardZone implements Iterable<C> {
 
     protected final Class<C> acceptable;
     protected final ArrayList<C> cards = new ArrayList<>();
@@ -37,17 +37,17 @@ public class CardSet<C extends Card> extends CardZone implements Iterable<C> {
     }
 
     @Override
-    public boolean canEnter(Class<? extends Card> cardClass) {
+    public boolean canEnter(Class<? extends ICard> cardClass) {
         return acceptable.isAssignableFrom(cardClass);
     }
 
     @Override
-    public void enter(Card card) {
+    public void enter(ICard card) {
         cards.add(acceptable.cast(card));
     }
 
     @Override
-    public void leave(Card card) {
+    public void leave(ICard card) {
         // todo: fix suspicious call?
         cards.remove(card);
     }

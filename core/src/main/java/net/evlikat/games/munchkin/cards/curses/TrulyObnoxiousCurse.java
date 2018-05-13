@@ -26,8 +26,8 @@ public class TrulyObnoxiousCurse extends Curse {
         } else if (maxBonusEquippable.size() == 1) {
             item = maxBonusEquippable.get(0);
         } else {
-            item = player.askChooseAmong(maxBonusEquippable);
+            item = player.askChooseCard(maxBonusEquippable);
         }
-        player.lose(item);
+        item.moveTo(game.getRoutingDiscardPile());
     }
 }

@@ -20,7 +20,7 @@ public class IncomeTax extends Curse {
 
     @Override
     public void apply(Player player, Game game) {
-        Item item = player.askChooseAmong(player.allItems().collect(toList()));
+        Item item = player.askChooseCard(player.allItems().collect(toList()));
         game.getPlayers().stream()
             .sorted(Comparator.comparing(Player::getIndex))
             .forEach(p -> {
@@ -30,10 +30,10 @@ public class IncomeTax extends Curse {
                     // todo:
                     p.loseLevels(1);
                 } else if (itemsToDiscard.size() == 1) {
-                    p.lose(itemsToDiscard.get(0));
+                    itemsToDiscard.get(0).moveTo(game.getRoutingDiscardPile());
                 } else {
-                    Item itemToDiscard = p.askChooseAmong(itemsToDiscard);
-                    p.lose(itemToDiscard);
+                    Item itemToDiscard = p.askChooseCard(itemsToDiscard);
+                    itemToDiscard.moveTo(game.getRoutingDiscardPile());
                 }
             });
     }

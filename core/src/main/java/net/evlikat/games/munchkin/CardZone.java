@@ -8,9 +8,9 @@ package net.evlikat.games.munchkin;
  */
 public abstract class CardZone {
 
-    public abstract boolean canEnter(Class<? extends Card> cardClass);
+    public abstract boolean canEnter(Class<? extends ICard> cardClass);
 
-    public abstract void enter(Card card);
+    public abstract void enter(ICard card);
 
-    public abstract void leave(Card card);
+    public abstract void leave(ICard card);
 }

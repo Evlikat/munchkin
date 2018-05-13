@@ -29,12 +29,11 @@ public class NetTroll extends Monster {
             Player::getLevel);
         playersOfMaxLevel.sort(Comparator.comparing(Player::getIndex));
         for (Player maxLevelPlayer : playersOfMaxLevel) {
-            Item item = maxLevelPlayer.askChooseAmong(player.allEquipment().collect(Collectors.toList()));
+            Item item = maxLevelPlayer.askChooseCard(player.allEquipment().collect(Collectors.toList()));
             if (item == null) {
                 return;
             }
-            player.lose(item);
-            maxLevelPlayer.obtain(item);
+            item.moveTo(maxLevelPlayer.hand());
         }
     }
 }

@@ -16,6 +16,6 @@ public class LoseOneSmallItem extends Curse {
     @Override
     public void apply(Player player, Game game) {
         Item item = player.askChooseItem();
-        player.lose(item);
+        item.moveTo(game.getRoutingDiscardPile());
     }
 }

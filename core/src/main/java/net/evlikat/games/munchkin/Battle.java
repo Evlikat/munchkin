@@ -4,6 +4,8 @@ import net.evlikat.games.munchkin.player.Player;
 import net.evlikat.games.munchkin.utils.GameCycle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Stream;
@@ -20,24 +22,25 @@ public class Battle {
 
     private final Game game;
 
-    private ModifiableMonsterSlot<Monster, BattleMonsterModifierCard> monsterInBattle = new ModifiableMonsterSlot<>(BattleMonsterModifierCard.class, Slot.empty(Monster.class));
+    private ModifiableMonsterSlot<Monster, MonsterModifier> monsterInBattle = new ModifiableMonsterSlot<>(MonsterModifier.class, Slot.empty(Monster.class));
     // todo:
-    private List<ModifiableMonsterSlot<Monster, BattleMonsterModifierCard>> additionalMonsters = new ArrayList<>();
+    private List<ModifiableMonsterSlot<Monster, MonsterModifier>> additionalMonsters = new ArrayList<>();
 
-    private Player player;
+    private ModifiablePlayer<BattleModifierCard> playerWithModifiers;
     // todo:
-    private Player helper;
+    private ModifiablePlayer<BattleModifierCard> helper;
     private List<Player> otherPlayers;
 
     public Battle(Game game, Player player, Monster monster, List<Player> otherPlayers) {
         this.game = game;
-        this.player = player;
+        this.playerWithModifiers = new ModifiablePlayer<>(BattleModifierCard.class, player);
+        this.helper = new ModifiablePlayer<>(BattleModifierCard.class, null);
         this.otherPlayers = otherPlayers;
 
         monster.moveTo(this.monsterInBattle.slot());
     }
 
-    public void playOnTargetMonster(Monster monster, BattleMonsterModifierCard modifier) {
+    public void playOnTargetMonster(Monster monster, MonsterModifier modifier) {
         if (monsterInBattle.slot().contains(monster)) {
             modifier.moveTo(monsterInBattle);
         }
@@ -47,9 +50,17 @@ public class Battle {
             .ifPresent(modifier::moveTo);
     }
 
+    public void playOnTargetPlayer(Player targetPlayer, BattleModifierCard battleModifierCard) {
+        if (targetPlayer.equals(playerWithModifiers.get())) {
+            battleModifierCard.moveTo(playerWithModifiers);
+        } else if (targetPlayer.equals(helper.get())) {
+            battleModifierCard.moveTo(helper);
+        }
+    }
+
     public void addMonster(Monster newMonster) {
         Slot<Monster> slot = Slot.empty(Monster.class);
-        additionalMonsters.add(new ModifiableMonsterSlot<>(BattleMonsterModifierCard.class, slot));
+        additionalMonsters.add(new ModifiableMonsterSlot<>(MonsterModifier.class, slot));
         newMonster.moveTo(slot);
     }
 
@@ -66,11 +77,12 @@ public class Battle {
             additionalMonsters.stream().map(ModifiableMonsterSlot::slot).flatMap(Slot::stream));
     }
 
-    private Stream<ModifiableMonsterSlot<Monster, BattleMonsterModifierCard>> allMonstersInBattle() {
+    private Stream<ModifiableMonsterSlot<Monster, MonsterModifier>> allMonstersInBattle() {
         return Stream.concat(Stream.of(monsterInBattle), additionalMonsters.stream());
     }
 
     public boolean play() {
+        Player player = playerWithModifiers.get().orElseThrow(() -> new RuntimeException("Player not present!"));
         GameCycle cycle = new GameCycle(
             Stream.<BooleanSupplier>concat(
                 Stream.of(() -> player.battlePlay(this)),
@@ -78,7 +90,7 @@ public class Battle {
             ).collect(toList()));
         cycle.run();
         int sumEffectiveLevel = allMonstersInBattle().mapToInt(m -> m.effectiveLevelAgainst(player)).sum();
-        if (player.wins(sumEffectiveLevel, helper)) {
+        if (playerWithModifiers.wins(sumEffectiveLevel, helper)) {
             // levels
             int levelsForFight = allMonstersInBattle().mapToInt(m -> m.levels(player)).sum();
             player.gainLevelsEvenLast(levelsForFight);
@@ -91,15 +103,11 @@ public class Battle {
             player.beforeRunAwayPlay(this);
             allMonsters().forEach(m -> {
                 m.beforeRunAway(player);
-                if (helper != null) {
-                    m.beforeRunAway(helper);
-                }
+                helper.get().ifPresent(m::beforeRunAway);
             });
             allMonsters().forEach(m -> {
                 handleRunAway(player, m);
-                if (helper != null) {
-                    handleRunAway(helper, m);
-                }
+                helper.get().ifPresent(p -> handleRunAway(p, m));
             });
         }
         // todo: handle when battle resolves with no fight
@@ -108,7 +116,7 @@ public class Battle {
 
     private void handleRunAway(final Player runner, final Monster monsterToRunAway) {
         while (true) {
-            int runAwayThrow = player.dice().thrown() + runner.runAwayModifier();
+            int runAwayThrow = runner.dice().thrown() + runner.runAwayModifier();
             int runAwayLevel = monsterToRunAway.runAwayLevel(runner);
 
             if (runAwayThrow >= runAwayLevel) {
@@ -138,5 +146,12 @@ public class Battle {
             }
         }
         return false;
+    }
+
+    public List<Player> allPlayers() {
+        Player player = playerWithModifiers.get().orElse(null);
+        return helper.get()
+            .map(h -> Arrays.asList(h, player))
+            .orElseGet(() -> Collections.singletonList(player));
     }
 }

@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  * @author Roman Prokhorov
  * @version 1.0
  */
-public class Slot<C extends Card> extends CardZone {
+public class Slot<C extends ICard> extends CardZone {
 
     private final Class<C> acceptable;
 
@@ -30,7 +30,7 @@ public class Slot<C extends Card> extends CardZone {
     }
 
     @Override
-    public boolean canEnter(Class<? extends Card> cardClass) {
+    public boolean canEnter(Class<? extends ICard> cardClass) {
         return acceptable.isAssignableFrom(cardClass);
     }
 
@@ -47,12 +47,12 @@ public class Slot<C extends Card> extends CardZone {
     }
 
     @Override
-    public void enter(Card card) {
+    public void enter(ICard card) {
         this.card = (C) card;
     }
 
     @Override
-    public void leave(Card card) {
+    public void leave(ICard card) {
         if (this.card == card) {
             this.card = null;
         }
